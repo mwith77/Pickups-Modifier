@@ -1,0 +1,2638 @@
+DefineMenuPage: [INVENTORY AND PICKUPS]
+ConfigurationFile: [Inventory and Pickups Modifier\inventory_and_pickups_modifier.ini]
+Formula:	[
+				range(type, unit, k, above) = LET(
+				    count, SETTING(CONCAT("bands.count-", type)),
+				    top,   SETTING(CONCAT("bands.band", k, "-size-", type)),
+				    below, IF(k = 1, 0, SETTING(CONCAT("bands.band", k - 1, "-size-", type))),
+				    IFS(count = 1,          "any amount",
+				        k >= count,         CONCAT(above, " ", FRACTION(below)),
+				        below + unit = top, CONCAT(FRACTION(top), IF(unit = 1, " only", "")),
+				        True,               CONCAT(FRACTION(below + unit), " to ", FRACTION(top))))
+			]
+Content:	{
+				{	ItemType: [Submenu]
+					SubmenuTitle: [CRAFTING MATERIALS]
+					Content:	{
+									{	ItemType: [Control]
+										ControlTitle: [Enable Global Multiplier]
+										Section: [multipliers]
+										SettingName: [multiply-all-crafting-materials]
+										ControlType: [Toggle]
+										ToggleDisabledValue: ["OFF" = 0]
+										ToggleEnabledValue: ["ON" = 1]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: []
+										ControlDescription:	[
+																Global multiplier for crafting materials. Individual Multipliers apply when disabled.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Global Multiplier Range]
+										Section: [multipliers]
+										SettingName: [band-all-crafting-materials]
+										ControlType: [Selector]
+										SelectorCount: [bands.count-crafting-materials]
+										SelectorLabel: [range("crafting-materials", 0.25, OPTION, "above")]
+										DefaultValue: [4]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-all-crafting-materials = 1]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>ON</b>.
+																		]
+										ControlVisibility: [bands.count-crafting-materials > 1]
+										ControlDescription:	[
+																Chooses which band the multiplier below edits. A pickup is multiplied by the band its own amount falls in, so a small pickup and a large one are multiplied differently.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Global Multiplier]
+										Section: [multipliers]
+										ControlType: [Slider]
+										SliderMinValue: [1.0]
+										SliderMaxValue: [10.0]
+										SliderStepSize: [Logarithmic]
+										MarkAsModified: [True]
+										SettingName: [CONCAT("band", band-all-crafting-materials, "-all-crafting-materials")]
+										DefaultValue: [CHOOSE(band-all-crafting-materials, 2.0, 1.5, 1.3, 1.2, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)]
+										ControlDependency: [multiply-all-crafting-materials = 1]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>ON</b>.
+																		]
+										ControlDescription:	[
+																CONCAT("What every crafting material pickup holding ", range("crafting-materials", 0.25, band-all-crafting-materials, "more than"), " is multiplied by. The result is rounded to the nearest quarter.")
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Enable Rag Multiplier]
+										Section: [multipliers]
+										SettingName: [multiply-rag]
+										ControlType: [Toggle]
+										ToggleDisabledValue: ["OFF" = 0]
+										ToggleEnabledValue: ["ON" = 1]
+										DefaultValue: [0]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-all-crafting-materials = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b>.
+																		]
+										ControlDescription:	[
+																Multiplies what a rag pickup holds. Off leaves every rag pickup as the game placed it.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Rag Multiplier Range]
+										Section: [multipliers]
+										SettingName: [band-rag]
+										ControlType: [Selector]
+										SelectorCount: [bands.count-crafting-materials]
+										SelectorLabel: [range("crafting-materials", 0.25, OPTION, "above")]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-rag = 1 AND multiply-all-crafting-materials = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Rag Multiplier</b> to <b>ON</b>.
+																		]
+										ControlVisibility: [bands.count-crafting-materials > 1]
+										ControlDescription:	[
+																Chooses which band the multiplier below edits. A pickup is multiplied by the band its own amount falls in, so a small pickup and a large one are multiplied differently.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Rag Multiplier]
+										Section: [multipliers]
+										ControlType: [Slider]
+										SliderMinValue: [1.0]
+										SliderMaxValue: [10.0]
+										SliderStepSize: [Logarithmic]
+										MarkAsModified: [True]
+										SettingName: [CONCAT("band", band-rag, "-rag")]
+										DefaultValue: [CHOOSE(band-rag, 2.0, 1.3, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)]
+										ControlDependency: [multiply-rag = 1 AND multiply-all-crafting-materials = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Rag Multiplier</b> to <b>ON</b>.
+																		]
+										ControlDescription:	[
+																CONCAT("What a rag pickup holding ", range("crafting-materials", 0.25, band-rag, "more than"), " is multiplied by. The result is rounded to the nearest quarter.")
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Enable Binding Multiplier]
+										Section: [multipliers]
+										SettingName: [multiply-binding]
+										ControlType: [Toggle]
+										ToggleDisabledValue: ["OFF" = 0]
+										ToggleEnabledValue: ["ON" = 1]
+										DefaultValue: [0]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-all-crafting-materials = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b>.
+																		]
+										ControlDescription:	[
+																Multiplies what a binding pickup holds. Off leaves every binding pickup as the game placed it.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Binding Multiplier Range]
+										Section: [multipliers]
+										SettingName: [band-binding]
+										ControlType: [Selector]
+										SelectorCount: [bands.count-crafting-materials]
+										SelectorLabel: [range("crafting-materials", 0.25, OPTION, "above")]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-binding = 1 AND multiply-all-crafting-materials = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Binding Multiplier</b> to <b>ON</b>.
+																		]
+										ControlVisibility: [bands.count-crafting-materials > 1]
+										ControlDescription:	[
+																Chooses which band the multiplier below edits. A pickup is multiplied by the band its own amount falls in, so a small pickup and a large one are multiplied differently.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Binding Multiplier]
+										Section: [multipliers]
+										ControlType: [Slider]
+										SliderMinValue: [1.0]
+										SliderMaxValue: [10.0]
+										SliderStepSize: [Logarithmic]
+										MarkAsModified: [True]
+										SettingName: [CONCAT("band", band-binding, "-binding")]
+										DefaultValue: [CHOOSE(band-binding, 2.0, 1.3, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)]
+										ControlDependency: [multiply-binding = 1 AND multiply-all-crafting-materials = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Binding Multiplier</b> to <b>ON</b>.
+																		]
+										ControlDescription:	[
+																CONCAT("What a binding pickup holding ", range("crafting-materials", 0.25, band-binding, "more than"), " is multiplied by. The result is rounded to the nearest quarter.")
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Enable Blade Multiplier]
+										Section: [multipliers]
+										SettingName: [multiply-blade]
+										ControlType: [Toggle]
+										ToggleDisabledValue: ["OFF" = 0]
+										ToggleEnabledValue: ["ON" = 1]
+										DefaultValue: [0]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-all-crafting-materials = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b>.
+																		]
+										ControlDescription:	[
+																Multiplies what a blade pickup holds. Off leaves every blade pickup as the game placed it.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Blade Multiplier Range]
+										Section: [multipliers]
+										SettingName: [band-blade]
+										ControlType: [Selector]
+										SelectorCount: [bands.count-crafting-materials]
+										SelectorLabel: [range("crafting-materials", 0.25, OPTION, "above")]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-blade = 1 AND multiply-all-crafting-materials = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Blade Multiplier</b> to <b>ON</b>.
+																		]
+										ControlVisibility: [bands.count-crafting-materials > 1]
+										ControlDescription:	[
+																Chooses which band the multiplier below edits. A pickup is multiplied by the band its own amount falls in, so a small pickup and a large one are multiplied differently.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Blade Multiplier]
+										Section: [multipliers]
+										ControlType: [Slider]
+										SliderMinValue: [1.0]
+										SliderMaxValue: [10.0]
+										SliderStepSize: [Logarithmic]
+										MarkAsModified: [True]
+										SettingName: [CONCAT("band", band-blade, "-blade")]
+										DefaultValue: [CHOOSE(band-blade, 2.0, 1.3, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)]
+										ControlDependency: [multiply-blade = 1 AND multiply-all-crafting-materials = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Blade Multiplier</b> to <b>ON</b>.
+																		]
+										ControlDescription:	[
+																CONCAT("What a blade pickup holding ", range("crafting-materials", 0.25, band-blade, "more than"), " is multiplied by. The result is rounded to the nearest quarter.")
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Enable Alcohol Multiplier]
+										Section: [multipliers]
+										SettingName: [multiply-alcohol]
+										ControlType: [Toggle]
+										ToggleDisabledValue: ["OFF" = 0]
+										ToggleEnabledValue: ["ON" = 1]
+										DefaultValue: [0]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-all-crafting-materials = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b>.
+																		]
+										ControlDescription:	[
+																Multiplies what an alcohol pickup holds. Off leaves every alcohol pickup as the game placed it.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Alcohol Multiplier Range]
+										Section: [multipliers]
+										SettingName: [band-alcohol]
+										ControlType: [Selector]
+										SelectorCount: [bands.count-crafting-materials]
+										SelectorLabel: [range("crafting-materials", 0.25, OPTION, "above")]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-alcohol = 1 AND multiply-all-crafting-materials = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Alcohol Multiplier</b> to <b>ON</b>.
+																		]
+										ControlVisibility: [bands.count-crafting-materials > 1]
+										ControlDescription:	[
+																Chooses which band the multiplier below edits. A pickup is multiplied by the band its own amount falls in, so a small pickup and a large one are multiplied differently.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Alcohol Multiplier]
+										Section: [multipliers]
+										ControlType: [Slider]
+										SliderMinValue: [1.0]
+										SliderMaxValue: [10.0]
+										SliderStepSize: [Logarithmic]
+										MarkAsModified: [True]
+										SettingName: [CONCAT("band", band-alcohol, "-alcohol")]
+										DefaultValue: [CHOOSE(band-alcohol, 2.0, 1.3, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)]
+										ControlDependency: [multiply-alcohol = 1 AND multiply-all-crafting-materials = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Alcohol Multiplier</b> to <b>ON</b>.
+																		]
+										ControlDescription:	[
+																CONCAT("What an alcohol pickup holding ", range("crafting-materials", 0.25, band-alcohol, "more than"), " is multiplied by. The result is rounded to the nearest quarter.")
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Enable Explosive Multiplier]
+										Section: [multipliers]
+										SettingName: [multiply-explosive]
+										ControlType: [Toggle]
+										ToggleDisabledValue: ["OFF" = 0]
+										ToggleEnabledValue: ["ON" = 1]
+										DefaultValue: [0]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-all-crafting-materials = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b>.
+																		]
+										ControlDescription:	[
+																Multiplies what an explosive pickup holds. Off leaves every explosive pickup as the game placed it.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Explosive Multiplier Range]
+										Section: [multipliers]
+										SettingName: [band-explosive]
+										ControlType: [Selector]
+										SelectorCount: [bands.count-crafting-materials]
+										SelectorLabel: [range("crafting-materials", 0.25, OPTION, "above")]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-explosive = 1 AND multiply-all-crafting-materials = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Explosive Multiplier</b> to <b>ON</b>.
+																		]
+										ControlVisibility: [bands.count-crafting-materials > 1]
+										ControlDescription:	[
+																Chooses which band the multiplier below edits. A pickup is multiplied by the band its own amount falls in, so a small pickup and a large one are multiplied differently.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Explosive Multiplier]
+										Section: [multipliers]
+										ControlType: [Slider]
+										SliderMinValue: [1.0]
+										SliderMaxValue: [10.0]
+										SliderStepSize: [Logarithmic]
+										MarkAsModified: [True]
+										SettingName: [CONCAT("band", band-explosive, "-explosive")]
+										DefaultValue: [CHOOSE(band-explosive, 2.0, 1.3, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)]
+										ControlDependency: [multiply-explosive = 1 AND multiply-all-crafting-materials = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Explosive Multiplier</b> to <b>ON</b>.
+																		]
+										ControlDescription:	[
+																CONCAT("What an explosive pickup holding ", range("crafting-materials", 0.25, band-explosive, "more than"), " is multiplied by. The result is rounded to the nearest quarter.")
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Enable Sugar Multiplier]
+										Section: [multipliers]
+										SettingName: [multiply-sugar]
+										ControlType: [Toggle]
+										ToggleDisabledValue: ["OFF" = 0]
+										ToggleEnabledValue: ["ON" = 1]
+										DefaultValue: [0]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-all-crafting-materials = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b>.
+																		]
+										ControlDescription:	[
+																Multiplies what a sugar pickup holds. Off leaves every sugar pickup as the game placed it.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Sugar Multiplier Range]
+										Section: [multipliers]
+										SettingName: [band-sugar]
+										ControlType: [Selector]
+										SelectorCount: [bands.count-crafting-materials]
+										SelectorLabel: [range("crafting-materials", 0.25, OPTION, "above")]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-sugar = 1 AND multiply-all-crafting-materials = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Sugar Multiplier</b> to <b>ON</b>.
+																		]
+										ControlVisibility: [bands.count-crafting-materials > 1]
+										ControlDescription:	[
+																Chooses which band the multiplier below edits. A pickup is multiplied by the band its own amount falls in, so a small pickup and a large one are multiplied differently.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Sugar Multiplier]
+										Section: [multipliers]
+										ControlType: [Slider]
+										SliderMinValue: [1.0]
+										SliderMaxValue: [10.0]
+										SliderStepSize: [Logarithmic]
+										MarkAsModified: [True]
+										SettingName: [CONCAT("band", band-sugar, "-sugar")]
+										DefaultValue: [CHOOSE(band-sugar, 2.0, 1.3, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)]
+										ControlDependency: [multiply-sugar = 1 AND multiply-all-crafting-materials = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Sugar Multiplier</b> to <b>ON</b>.
+																		]
+										ControlDescription:	[
+																CONCAT("What a sugar pickup holding ", range("crafting-materials", 0.25, band-sugar, "more than"), " is multiplied by. The result is rounded to the nearest quarter.")
+															]
+									}
+								}
+				}
+				{	ItemType: [Submenu]
+					SubmenuTitle: [AMMO]
+					Content:	{
+									{	ItemType: [Control]
+										ControlTitle: [Enable Global Multiplier]
+										Section: [multipliers]
+										SettingName: [multiply-all-ammo]
+										ControlType: [Toggle]
+										ToggleDisabledValue: ["OFF" = 0]
+										ToggleEnabledValue: ["ON" = 1]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: []
+										ControlDescription:	[
+																Global multiplier for ammunition. Individual Multipliers apply when disabled.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Global Multiplier Range]
+										Section: [multipliers]
+										SettingName: [band-all-ammo]
+										ControlType: [Selector]
+										SelectorCount: [bands.count-ammo]
+										SelectorLabel: [range("ammo", 1, OPTION, "above")]
+										DefaultValue: [5]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-all-ammo = 1]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>ON</b>.
+																		]
+										ControlVisibility: [bands.count-ammo > 1]
+										ControlDescription:	[
+																Chooses which band the multiplier below edits. A pickup is multiplied by the band its own amount falls in, so a small pickup and a large one are multiplied differently.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Global Multiplier]
+										Section: [multipliers]
+										ControlType: [Slider]
+										SliderMinValue: [1.0]
+										SliderMaxValue: [10.0]
+										SliderStepSize: [Logarithmic]
+										MarkAsModified: [True]
+										SettingName: [CONCAT("band", band-all-ammo, "-all-ammo")]
+										DefaultValue: [CHOOSE(band-all-ammo, 2.0, 1.5, 1.3, 1.2, 1.1, 1.0, 1.0, 1.0, 1.0, 1.0)]
+										ControlDependency: [multiply-all-ammo = 1]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>ON</b>.
+																		]
+										ControlDescription:	[
+																CONCAT("What every ammunition pickup holding ", range("ammo", 1, band-all-ammo, "more than"), " is multiplied by. The result is rounded to the nearest whole number.")
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Enable 9mm Ammunition Multiplier]
+										Section: [multipliers]
+										SettingName: [multiply-ammo-9mm]
+										ControlType: [Toggle]
+										ToggleDisabledValue: ["OFF" = 0]
+										ToggleEnabledValue: ["ON" = 1]
+										DefaultValue: [0]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-all-ammo = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b>.
+																		]
+										ControlDescription:	[
+																Multiplies what a 9mm ammunition pickup holds. Off leaves every 9mm ammunition pickup as the game placed it.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [9mm Ammunition Multiplier Range]
+										Section: [multipliers]
+										SettingName: [band-ammo-9mm]
+										ControlType: [Selector]
+										SelectorCount: [bands.count-ammo]
+										SelectorLabel: [range("ammo", 1, OPTION, "above")]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-ammo-9mm = 1 AND multiply-all-ammo = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable 9mm Ammunition Multiplier</b> to <b>ON</b>.
+																		]
+										ControlVisibility: [bands.count-ammo > 1]
+										ControlDescription:	[
+																Chooses which band the multiplier below edits. A pickup is multiplied by the band its own amount falls in, so a small pickup and a large one are multiplied differently.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [9mm Ammunition Multiplier]
+										Section: [multipliers]
+										ControlType: [Slider]
+										SliderMinValue: [1.0]
+										SliderMaxValue: [10.0]
+										SliderStepSize: [Logarithmic]
+										MarkAsModified: [True]
+										SettingName: [CONCAT("band", band-ammo-9mm, "-ammo-9mm")]
+										DefaultValue: [CHOOSE(band-ammo-9mm, 2.0, 1.7, 1.5, 1.2, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)]
+										ControlDependency: [multiply-ammo-9mm = 1 AND multiply-all-ammo = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable 9mm Ammunition Multiplier</b> to <b>ON</b>.
+																		]
+										ControlDescription:	[
+																CONCAT("What a 9mm ammunition pickup holding ", range("ammo", 1, band-ammo-9mm, "more than"), " is multiplied by. The result is rounded to the nearest whole number.")
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Enable Shotgun Shells Multiplier]
+										Section: [multipliers]
+										SettingName: [multiply-ammo-shotgun]
+										ControlType: [Toggle]
+										ToggleDisabledValue: ["OFF" = 0]
+										ToggleEnabledValue: ["ON" = 1]
+										DefaultValue: [0]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-all-ammo = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b>.
+																		]
+										ControlDescription:	[
+																Multiplies what a shotgun shells pickup holds. Off leaves every shotgun shells pickup as the game placed it.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Shotgun Shells Multiplier Range]
+										Section: [multipliers]
+										SettingName: [band-ammo-shotgun]
+										ControlType: [Selector]
+										SelectorCount: [bands.count-ammo]
+										SelectorLabel: [range("ammo", 1, OPTION, "above")]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-ammo-shotgun = 1 AND multiply-all-ammo = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Shotgun Shells Multiplier</b> to <b>ON</b>.
+																		]
+										ControlVisibility: [bands.count-ammo > 1]
+										ControlDescription:	[
+																Chooses which band the multiplier below edits. A pickup is multiplied by the band its own amount falls in, so a small pickup and a large one are multiplied differently.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Shotgun Shells Multiplier]
+										Section: [multipliers]
+										ControlType: [Slider]
+										SliderMinValue: [1.0]
+										SliderMaxValue: [10.0]
+										SliderStepSize: [Logarithmic]
+										MarkAsModified: [True]
+										SettingName: [CONCAT("band", band-ammo-shotgun, "-ammo-shotgun")]
+										DefaultValue: [CHOOSE(band-ammo-shotgun, 2.0, 1.7, 1.5, 1.2, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)]
+										ControlDependency: [multiply-ammo-shotgun = 1 AND multiply-all-ammo = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Shotgun Shells Multiplier</b> to <b>ON</b>.
+																		]
+										ControlDescription:	[
+																CONCAT("What a shotgun shells pickup holding ", range("ammo", 1, band-ammo-shotgun, "more than"), " is multiplied by. The result is rounded to the nearest whole number.")
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Enable Rifle Ammunition Multiplier]
+										Section: [multipliers]
+										SettingName: [multiply-ammo-rifle]
+										ControlType: [Toggle]
+										ToggleDisabledValue: ["OFF" = 0]
+										ToggleEnabledValue: ["ON" = 1]
+										DefaultValue: [0]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-all-ammo = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b>.
+																		]
+										ControlDescription:	[
+																Multiplies what a rifle ammunition pickup holds. Off leaves every rifle ammunition pickup as the game placed it.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Rifle Ammunition Multiplier Range]
+										Section: [multipliers]
+										SettingName: [band-ammo-rifle]
+										ControlType: [Selector]
+										SelectorCount: [bands.count-ammo]
+										SelectorLabel: [range("ammo", 1, OPTION, "above")]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-ammo-rifle = 1 AND multiply-all-ammo = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Rifle Ammunition Multiplier</b> to <b>ON</b>.
+																		]
+										ControlVisibility: [bands.count-ammo > 1]
+										ControlDescription:	[
+																Chooses which band the multiplier below edits. A pickup is multiplied by the band its own amount falls in, so a small pickup and a large one are multiplied differently.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Rifle Ammunition Multiplier]
+										Section: [multipliers]
+										ControlType: [Slider]
+										SliderMinValue: [1.0]
+										SliderMaxValue: [10.0]
+										SliderStepSize: [Logarithmic]
+										MarkAsModified: [True]
+										SettingName: [CONCAT("band", band-ammo-rifle, "-ammo-rifle")]
+										DefaultValue: [CHOOSE(band-ammo-rifle, 2.0, 1.7, 1.5, 1.2, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)]
+										ControlDependency: [multiply-ammo-rifle = 1 AND multiply-all-ammo = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Rifle Ammunition Multiplier</b> to <b>ON</b>.
+																		]
+										ControlDescription:	[
+																CONCAT("What a rifle ammunition pickup holding ", range("ammo", 1, band-ammo-rifle, "more than"), " is multiplied by. The result is rounded to the nearest whole number.")
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Enable Revolver Ammunition Multiplier]
+										Section: [multipliers]
+										SettingName: [multiply-ammo-revolver]
+										ControlType: [Toggle]
+										ToggleDisabledValue: ["OFF" = 0]
+										ToggleEnabledValue: ["ON" = 1]
+										DefaultValue: [0]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-all-ammo = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b>.
+																		]
+										ControlDescription:	[
+																Multiplies what a revolver ammunition pickup holds. Off leaves every revolver ammunition pickup as the game placed it.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Revolver Ammunition Multiplier Range]
+										Section: [multipliers]
+										SettingName: [band-ammo-revolver]
+										ControlType: [Selector]
+										SelectorCount: [bands.count-ammo]
+										SelectorLabel: [range("ammo", 1, OPTION, "above")]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-ammo-revolver = 1 AND multiply-all-ammo = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Revolver Ammunition Multiplier</b> to <b>ON</b>.
+																		]
+										ControlVisibility: [bands.count-ammo > 1]
+										ControlDescription:	[
+																Chooses which band the multiplier below edits. A pickup is multiplied by the band its own amount falls in, so a small pickup and a large one are multiplied differently.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Revolver Ammunition Multiplier]
+										Section: [multipliers]
+										ControlType: [Slider]
+										SliderMinValue: [1.0]
+										SliderMaxValue: [10.0]
+										SliderStepSize: [Logarithmic]
+										MarkAsModified: [True]
+										SettingName: [CONCAT("band", band-ammo-revolver, "-ammo-revolver")]
+										DefaultValue: [CHOOSE(band-ammo-revolver, 2.0, 1.7, 1.5, 1.2, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)]
+										ControlDependency: [multiply-ammo-revolver = 1 AND multiply-all-ammo = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Revolver Ammunition Multiplier</b> to <b>ON</b>.
+																		]
+										ControlDescription:	[
+																CONCAT("What a revolver ammunition pickup holding ", range("ammo", 1, band-ammo-revolver, "more than"), " is multiplied by. The result is rounded to the nearest whole number.")
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Enable Arrows Multiplier]
+										Section: [multipliers]
+										SettingName: [multiply-ammo-arrow]
+										ControlType: [Toggle]
+										ToggleDisabledValue: ["OFF" = 0]
+										ToggleEnabledValue: ["ON" = 1]
+										DefaultValue: [0]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-all-ammo = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b>.
+																		]
+										ControlDescription:	[
+																Multiplies what an arrows pickup holds. Off leaves every arrows pickup as the game placed it.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Arrows Multiplier Range]
+										Section: [multipliers]
+										SettingName: [band-ammo-arrow]
+										ControlType: [Selector]
+										SelectorCount: [bands.count-ammo]
+										SelectorLabel: [range("ammo", 1, OPTION, "above")]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-ammo-arrow = 1 AND multiply-all-ammo = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Arrows Multiplier</b> to <b>ON</b>.
+																		]
+										ControlVisibility: [bands.count-ammo > 1]
+										ControlDescription:	[
+																Chooses which band the multiplier below edits. A pickup is multiplied by the band its own amount falls in, so a small pickup and a large one are multiplied differently.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Arrows Multiplier]
+										Section: [multipliers]
+										ControlType: [Slider]
+										SliderMinValue: [1.0]
+										SliderMaxValue: [10.0]
+										SliderStepSize: [Logarithmic]
+										MarkAsModified: [True]
+										SettingName: [CONCAT("band", band-ammo-arrow, "-ammo-arrow")]
+										DefaultValue: [CHOOSE(band-ammo-arrow, 2.0, 1.7, 1.5, 1.2, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)]
+										ControlDependency: [multiply-ammo-arrow = 1 AND multiply-all-ammo = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Arrows Multiplier</b> to <b>ON</b>.
+																		]
+										ControlDescription:	[
+																CONCAT("What an arrows pickup holding ", range("ammo", 1, band-ammo-arrow, "more than"), " is multiplied by. The result is rounded to the nearest whole number.")
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Enable Flamethrower Fuel Multiplier]
+										Section: [multipliers]
+										SettingName: [multiply-ammo-flamethrower]
+										ControlType: [Toggle]
+										ToggleDisabledValue: ["OFF" = 0]
+										ToggleEnabledValue: ["ON" = 1]
+										DefaultValue: [0]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-all-ammo = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b>.
+																		]
+										ControlDescription:	[
+																Multiplies what a flamethrower fuel pickup holds. Off leaves every flamethrower fuel pickup as the game placed it.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Flamethrower Fuel Multiplier Range]
+										Section: [multipliers]
+										SettingName: [band-ammo-flamethrower]
+										ControlType: [Selector]
+										SelectorCount: [bands.count-ammo]
+										SelectorLabel: [range("ammo", 1, OPTION, "above")]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-ammo-flamethrower = 1 AND multiply-all-ammo = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Flamethrower Fuel Multiplier</b> to <b>ON</b>.
+																		]
+										ControlVisibility: [bands.count-ammo > 1]
+										ControlDescription:	[
+																Chooses which band the multiplier below edits. A pickup is multiplied by the band its own amount falls in, so a small pickup and a large one are multiplied differently.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Flamethrower Fuel Multiplier]
+										Section: [multipliers]
+										ControlType: [Slider]
+										SliderMinValue: [1.0]
+										SliderMaxValue: [10.0]
+										SliderStepSize: [Logarithmic]
+										MarkAsModified: [True]
+										SettingName: [CONCAT("band", band-ammo-flamethrower, "-ammo-flamethrower")]
+										DefaultValue: [CHOOSE(band-ammo-flamethrower, 2.0, 1.7, 1.5, 1.2, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)]
+										ControlDependency: [multiply-ammo-flamethrower = 1 AND multiply-all-ammo = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Flamethrower Fuel Multiplier</b> to <b>ON</b>.
+																		]
+										ControlDescription:	[
+																CONCAT("What a flamethrower fuel pickup holding ", range("ammo", 1, band-ammo-flamethrower, "more than"), " is multiplied by. The result is rounded to the nearest whole number.")
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Enable Assault Rifle Ammunition Multiplier]
+										Section: [multipliers]
+										SettingName: [multiply-ammo-assault-rifle]
+										ControlType: [Toggle]
+										ToggleDisabledValue: ["OFF" = 0]
+										ToggleEnabledValue: ["ON" = 1]
+										DefaultValue: [0]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-all-ammo = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b>.
+																		]
+										ControlDescription:	[
+																Multiplies what an assault rifle ammunition pickup holds. Off leaves every assault rifle ammunition pickup as the game placed it.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Assault Rifle Ammunition Multiplier Range]
+										Section: [multipliers]
+										SettingName: [band-ammo-assault-rifle]
+										ControlType: [Selector]
+										SelectorCount: [bands.count-ammo]
+										SelectorLabel: [range("ammo", 1, OPTION, "above")]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-ammo-assault-rifle = 1 AND multiply-all-ammo = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Assault Rifle Ammunition Multiplier</b> to <b>ON</b>.
+																		]
+										ControlVisibility: [bands.count-ammo > 1]
+										ControlDescription:	[
+																Chooses which band the multiplier below edits. A pickup is multiplied by the band its own amount falls in, so a small pickup and a large one are multiplied differently.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Assault Rifle Ammunition Multiplier]
+										Section: [multipliers]
+										ControlType: [Slider]
+										SliderMinValue: [1.0]
+										SliderMaxValue: [10.0]
+										SliderStepSize: [Logarithmic]
+										MarkAsModified: [True]
+										SettingName: [CONCAT("band", band-ammo-assault-rifle, "-ammo-assault-rifle")]
+										DefaultValue: [CHOOSE(band-ammo-assault-rifle, 2.0, 1.7, 1.5, 1.2, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)]
+										ControlDependency: [multiply-ammo-assault-rifle = 1 AND multiply-all-ammo = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Assault Rifle Ammunition Multiplier</b> to <b>ON</b>.
+																		]
+										ControlDescription:	[
+																CONCAT("What an assault rifle ammunition pickup holding ", range("ammo", 1, band-ammo-assault-rifle, "more than"), " is multiplied by. The result is rounded to the nearest whole number.")
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Enable Shorty Shells Multiplier]
+										Section: [multipliers]
+										SettingName: [multiply-ammo-shorty]
+										ControlType: [Toggle]
+										ToggleDisabledValue: ["OFF" = 0]
+										ToggleEnabledValue: ["ON" = 1]
+										DefaultValue: [0]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-all-ammo = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b>.
+																		]
+										ControlDescription:	[
+																Multiplies what a shorty shells pickup holds. Off leaves every shorty shells pickup as the game placed it.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Shorty Shells Multiplier Range]
+										Section: [multipliers]
+										SettingName: [band-ammo-shorty]
+										ControlType: [Selector]
+										SelectorCount: [bands.count-ammo]
+										SelectorLabel: [range("ammo", 1, OPTION, "above")]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-ammo-shorty = 1 AND multiply-all-ammo = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Shorty Shells Multiplier</b> to <b>ON</b>.
+																		]
+										ControlVisibility: [bands.count-ammo > 1]
+										ControlDescription:	[
+																Chooses which band the multiplier below edits. A pickup is multiplied by the band its own amount falls in, so a small pickup and a large one are multiplied differently.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Shorty Shells Multiplier]
+										Section: [multipliers]
+										ControlType: [Slider]
+										SliderMinValue: [1.0]
+										SliderMaxValue: [10.0]
+										SliderStepSize: [Logarithmic]
+										MarkAsModified: [True]
+										SettingName: [CONCAT("band", band-ammo-shorty, "-ammo-shorty")]
+										DefaultValue: [CHOOSE(band-ammo-shorty, 2.0, 1.7, 1.5, 1.2, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)]
+										ControlDependency: [multiply-ammo-shorty = 1 AND multiply-all-ammo = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Shorty Shells Multiplier</b> to <b>ON</b>.
+																		]
+										ControlDescription:	[
+																CONCAT("What a shorty shells pickup holding ", range("ammo", 1, band-ammo-shorty, "more than"), " is multiplied by. The result is rounded to the nearest whole number.")
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Enable El Diablo Ammunition Multiplier]
+										Section: [multipliers]
+										SettingName: [multiply-ammo-el-diablo]
+										ControlType: [Toggle]
+										ToggleDisabledValue: ["OFF" = 0]
+										ToggleEnabledValue: ["ON" = 1]
+										DefaultValue: [0]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-all-ammo = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b>.
+																		]
+										ControlDescription:	[
+																Multiplies what an el diablo ammunition pickup holds. Off leaves every el diablo ammunition pickup as the game placed it.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [El Diablo Ammunition Multiplier Range]
+										Section: [multipliers]
+										SettingName: [band-ammo-el-diablo]
+										ControlType: [Selector]
+										SelectorCount: [bands.count-ammo]
+										SelectorLabel: [range("ammo", 1, OPTION, "above")]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-ammo-el-diablo = 1 AND multiply-all-ammo = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable El Diablo Ammunition Multiplier</b> to <b>ON</b>.
+																		]
+										ControlVisibility: [bands.count-ammo > 1]
+										ControlDescription:	[
+																Chooses which band the multiplier below edits. A pickup is multiplied by the band its own amount falls in, so a small pickup and a large one are multiplied differently.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [El Diablo Ammunition Multiplier]
+										Section: [multipliers]
+										ControlType: [Slider]
+										SliderMinValue: [1.0]
+										SliderMaxValue: [10.0]
+										SliderStepSize: [Logarithmic]
+										MarkAsModified: [True]
+										SettingName: [CONCAT("band", band-ammo-el-diablo, "-ammo-el-diablo")]
+										DefaultValue: [CHOOSE(band-ammo-el-diablo, 2.0, 1.7, 1.5, 1.2, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)]
+										ControlDependency: [multiply-ammo-el-diablo = 1 AND multiply-all-ammo = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable El Diablo Ammunition Multiplier</b> to <b>ON</b>.
+																		]
+										ControlDescription:	[
+																CONCAT("What an el diablo ammunition pickup holding ", range("ammo", 1, band-ammo-el-diablo, "more than"), " is multiplied by. The result is rounded to the nearest whole number.")
+															]
+									}
+								}
+				}
+				{	ItemType: [Submenu]
+					SubmenuTitle: [ITEMS]
+					Content:	{
+									{	ItemType: [Control]
+										ControlTitle: [Enable Global Multiplier]
+										Section: [multipliers]
+										SettingName: [multiply-all-items]
+										ControlType: [Toggle]
+										ToggleDisabledValue: ["OFF" = 0]
+										ToggleEnabledValue: ["ON" = 1]
+										DefaultValue: [0]
+										MarkAsModified: [True]
+										ControlDependency: []
+										ControlDescription:	[
+																Global multiplier for items. Individual Multipliers apply when disabled.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Global Multiplier Range]
+										Section: [multipliers]
+										SettingName: [band-all-items]
+										ControlType: [Selector]
+										SelectorCount: [bands.count-items]
+										SelectorLabel: [range("items", 1, OPTION, "above")]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-all-items = 1]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>ON</b>.
+																		]
+										ControlVisibility: [bands.count-items > 1]
+										ControlDescription:	[
+																Chooses which band the multiplier below edits. A pickup is multiplied by the band its own amount falls in, so a small pickup and a large one are multiplied differently.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Global Multiplier]
+										Section: [multipliers]
+										ControlType: [Slider]
+										SliderMinValue: [1.0]
+										SliderMaxValue: [10.0]
+										SliderStepSize: [Logarithmic]
+										MarkAsModified: [True]
+										SettingName: [CONCAT("band", band-all-items, "-all-items")]
+										DefaultValue: [CHOOSE(band-all-items, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)]
+										ControlDependency: [multiply-all-items = 1]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>ON</b>.
+																		]
+										ControlDescription:	[
+																CONCAT("What every item pickup holding ", range("items", 1, band-all-items, "more than"), " is multiplied by. The result is rounded to the nearest whole number.")
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Enable Health Kit Multiplier]
+										Section: [multipliers]
+										SettingName: [multiply-health-kit]
+										ControlType: [Toggle]
+										ToggleDisabledValue: ["OFF" = 0]
+										ToggleEnabledValue: ["ON" = 1]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-all-items = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b>.
+																		]
+										ControlDescription:	[
+																Multiplies what a health kit pickup holds. Off leaves every health kit pickup as the game placed it.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Health Kit Multiplier Range]
+										Section: [multipliers]
+										SettingName: [band-health-kit]
+										ControlType: [Selector]
+										SelectorCount: [bands.count-items]
+										SelectorLabel: [range("items", 1, OPTION, "above")]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-health-kit = 1 AND multiply-all-items = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Health Kit Multiplier</b> to <b>ON</b>.
+																		]
+										ControlVisibility: [bands.count-items > 1]
+										ControlDescription:	[
+																Chooses which band the multiplier below edits. A pickup is multiplied by the band its own amount falls in, so a small pickup and a large one are multiplied differently.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Health Kit Multiplier]
+										Section: [multipliers]
+										ControlType: [Slider]
+										SliderMinValue: [1.0]
+										SliderMaxValue: [10.0]
+										SliderStepSize: [Logarithmic]
+										MarkAsModified: [True]
+										SettingName: [CONCAT("band", band-health-kit, "-health-kit")]
+										DefaultValue: [CHOOSE(band-health-kit, 3.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)]
+										ControlDependency: [multiply-health-kit = 1 AND multiply-all-items = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Health Kit Multiplier</b> to <b>ON</b>.
+																		]
+										ControlDescription:	[
+																CONCAT("What a health kit pickup holding ", range("items", 1, band-health-kit, "more than"), " is multiplied by. The result is rounded to the nearest whole number.")
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Enable Molotov Multiplier]
+										Section: [multipliers]
+										SettingName: [multiply-molotov]
+										ControlType: [Toggle]
+										ToggleDisabledValue: ["OFF" = 0]
+										ToggleEnabledValue: ["ON" = 1]
+										DefaultValue: [0]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-all-items = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b>.
+																		]
+										ControlDescription:	[
+																Multiplies what a molotov pickup holds. Off leaves every molotov pickup as the game placed it.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Molotov Multiplier Range]
+										Section: [multipliers]
+										SettingName: [band-molotov]
+										ControlType: [Selector]
+										SelectorCount: [bands.count-items]
+										SelectorLabel: [range("items", 1, OPTION, "above")]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-molotov = 1 AND multiply-all-items = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Molotov Multiplier</b> to <b>ON</b>.
+																		]
+										ControlVisibility: [bands.count-items > 1]
+										ControlDescription:	[
+																Chooses which band the multiplier below edits. A pickup is multiplied by the band its own amount falls in, so a small pickup and a large one are multiplied differently.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Molotov Multiplier]
+										Section: [multipliers]
+										ControlType: [Slider]
+										SliderMinValue: [1.0]
+										SliderMaxValue: [10.0]
+										SliderStepSize: [Logarithmic]
+										MarkAsModified: [True]
+										SettingName: [CONCAT("band", band-molotov, "-molotov")]
+										DefaultValue: [CHOOSE(band-molotov, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)]
+										ControlDependency: [multiply-molotov = 1 AND multiply-all-items = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Molotov Multiplier</b> to <b>ON</b>.
+																		]
+										ControlDescription:	[
+																CONCAT("What a molotov pickup holding ", range("items", 1, band-molotov, "more than"), " is multiplied by. The result is rounded to the nearest whole number.")
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Enable Nail Bomb Multiplier]
+										Section: [multipliers]
+										SettingName: [multiply-nail-bomb]
+										ControlType: [Toggle]
+										ToggleDisabledValue: ["OFF" = 0]
+										ToggleEnabledValue: ["ON" = 1]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-all-items = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b>.
+																		]
+										ControlDescription:	[
+																Multiplies what a nail bomb pickup holds. Off leaves every nail bomb pickup as the game placed it.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Nail Bomb Multiplier Range]
+										Section: [multipliers]
+										SettingName: [band-nail-bomb]
+										ControlType: [Selector]
+										SelectorCount: [bands.count-items]
+										SelectorLabel: [range("items", 1, OPTION, "above")]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-nail-bomb = 1 AND multiply-all-items = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Nail Bomb Multiplier</b> to <b>ON</b>.
+																		]
+										ControlVisibility: [bands.count-items > 1]
+										ControlDescription:	[
+																Chooses which band the multiplier below edits. A pickup is multiplied by the band its own amount falls in, so a small pickup and a large one are multiplied differently.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Nail Bomb Multiplier]
+										Section: [multipliers]
+										ControlType: [Slider]
+										SliderMinValue: [1.0]
+										SliderMaxValue: [10.0]
+										SliderStepSize: [Logarithmic]
+										MarkAsModified: [True]
+										SettingName: [CONCAT("band", band-nail-bomb, "-nail-bomb")]
+										DefaultValue: [CHOOSE(band-nail-bomb, 3.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)]
+										ControlDependency: [multiply-nail-bomb = 1 AND multiply-all-items = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Nail Bomb Multiplier</b> to <b>ON</b>.
+																		]
+										ControlDescription:	[
+																CONCAT("What a nail bomb pickup holding ", range("items", 1, band-nail-bomb, "more than"), " is multiplied by. The result is rounded to the nearest whole number.")
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Enable Smoke Bomb Multiplier]
+										Section: [multipliers]
+										SettingName: [multiply-smoke-bomb]
+										ControlType: [Toggle]
+										ToggleDisabledValue: ["OFF" = 0]
+										ToggleEnabledValue: ["ON" = 1]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-all-items = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b>.
+																		]
+										ControlDescription:	[
+																Multiplies what a smoke bomb pickup holds. Off leaves every smoke bomb pickup as the game placed it.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Smoke Bomb Multiplier Range]
+										Section: [multipliers]
+										SettingName: [band-smoke-bomb]
+										ControlType: [Selector]
+										SelectorCount: [bands.count-items]
+										SelectorLabel: [range("items", 1, OPTION, "above")]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-smoke-bomb = 1 AND multiply-all-items = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Smoke Bomb Multiplier</b> to <b>ON</b>.
+																		]
+										ControlVisibility: [bands.count-items > 1]
+										ControlDescription:	[
+																Chooses which band the multiplier below edits. A pickup is multiplied by the band its own amount falls in, so a small pickup and a large one are multiplied differently.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Smoke Bomb Multiplier]
+										Section: [multipliers]
+										ControlType: [Slider]
+										SliderMinValue: [1.0]
+										SliderMaxValue: [10.0]
+										SliderStepSize: [Logarithmic]
+										MarkAsModified: [True]
+										SettingName: [CONCAT("band", band-smoke-bomb, "-smoke-bomb")]
+										DefaultValue: [CHOOSE(band-smoke-bomb, 2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)]
+										ControlDependency: [multiply-smoke-bomb = 1 AND multiply-all-items = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Smoke Bomb Multiplier</b> to <b>ON</b>.
+																		]
+										ControlDescription:	[
+																CONCAT("What a smoke bomb pickup holding ", range("items", 1, band-smoke-bomb, "more than"), " is multiplied by. The result is rounded to the nearest whole number.")
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Enable Shiv Multiplier]
+										Section: [multipliers]
+										SettingName: [multiply-shiv]
+										ControlType: [Toggle]
+										ToggleDisabledValue: ["OFF" = 0]
+										ToggleEnabledValue: ["ON" = 1]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-all-items = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b>.
+																		]
+										ControlDescription:	[
+																Multiplies what a shiv pickup holds. Off leaves every shiv pickup as the game placed it.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Shiv Multiplier Range]
+										Section: [multipliers]
+										SettingName: [band-shiv]
+										ControlType: [Selector]
+										SelectorCount: [bands.count-items]
+										SelectorLabel: [range("items", 1, OPTION, "above")]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-shiv = 1 AND multiply-all-items = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Shiv Multiplier</b> to <b>ON</b>.
+																		]
+										ControlVisibility: [bands.count-items > 1]
+										ControlDescription:	[
+																Chooses which band the multiplier below edits. A pickup is multiplied by the band its own amount falls in, so a small pickup and a large one are multiplied differently.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Shiv Multiplier]
+										Section: [multipliers]
+										ControlType: [Slider]
+										SliderMinValue: [1.0]
+										SliderMaxValue: [10.0]
+										SliderStepSize: [Logarithmic]
+										MarkAsModified: [True]
+										SettingName: [CONCAT("band", band-shiv, "-shiv")]
+										DefaultValue: [CHOOSE(band-shiv, 3.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)]
+										ControlDependency: [multiply-shiv = 1 AND multiply-all-items = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Shiv Multiplier</b> to <b>ON</b>.
+																		]
+										ControlDescription:	[
+																CONCAT("What a shiv pickup holding ", range("items", 1, band-shiv, "more than"), " is multiplied by. The result is rounded to the nearest whole number.")
+															]
+									}
+								}
+				}
+				{	ItemType: [Submenu]
+					SubmenuTitle: [PARTS AND SUPPLEMENTS]
+					Content:	{
+									{	ItemType: [Control]
+										ControlTitle: [Enable Global Multiplier]
+										Section: [multipliers]
+										SettingName: [multiply-all-parts-and-supplements]
+										ControlType: [Toggle]
+										ToggleDisabledValue: ["OFF" = 0]
+										ToggleEnabledValue: ["ON" = 1]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: []
+										ControlDescription:	[
+																Global multiplier for parts and supplements. Individual Multipliers apply when disabled.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Global Multiplier Range]
+										Section: [multipliers]
+										SettingName: [band-all-parts-and-supplements]
+										ControlType: [Selector]
+										SelectorCount: [bands.count-parts-and-supplements]
+										SelectorLabel: [range("parts-and-supplements", 1, OPTION, "above")]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-all-parts-and-supplements = 1]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>ON</b>.
+																		]
+										ControlVisibility: [bands.count-parts-and-supplements > 1]
+										ControlDescription:	[
+																Chooses which band the multiplier below edits. A pickup is multiplied by the band its own amount falls in, so a small pickup and a large one are multiplied differently.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Global Multiplier]
+										Section: [multipliers]
+										ControlType: [Slider]
+										SliderMinValue: [1.0]
+										SliderMaxValue: [10.0]
+										SliderStepSize: [Logarithmic]
+										MarkAsModified: [True]
+										SettingName: [CONCAT("band", band-all-parts-and-supplements, "-all-parts-and-supplements")]
+										DefaultValue: [CHOOSE(band-all-parts-and-supplements, 2.0, 1.8, 1.6, 1.4, 1.2, 1.0, 1.0, 1.0, 1.0, 1.0)]
+										ControlDependency: [multiply-all-parts-and-supplements = 1]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>ON</b>.
+																		]
+										ControlDescription:	[
+																CONCAT("What every parts or supplements pickup holding ", range("parts-and-supplements", 1, band-all-parts-and-supplements, "more than"), " is multiplied by. The result is rounded to the nearest whole number.")
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Enable Parts Multiplier]
+										Section: [multipliers]
+										SettingName: [multiply-parts]
+										ControlType: [Toggle]
+										ToggleDisabledValue: ["OFF" = 0]
+										ToggleEnabledValue: ["ON" = 1]
+										DefaultValue: [0]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-all-parts-and-supplements = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b>.
+																		]
+										ControlDescription:	[
+																Multiplies what a parts pickup holds. Off leaves every parts pickup as the game placed it.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Parts Multiplier Range]
+										Section: [multipliers]
+										SettingName: [band-parts]
+										ControlType: [Selector]
+										SelectorCount: [bands.count-parts-and-supplements]
+										SelectorLabel: [range("parts-and-supplements", 1, OPTION, "above")]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-parts = 1 AND multiply-all-parts-and-supplements = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Parts Multiplier</b> to <b>ON</b>.
+																		]
+										ControlVisibility: [bands.count-parts-and-supplements > 1]
+										ControlDescription:	[
+																Chooses which band the multiplier below edits. A pickup is multiplied by the band its own amount falls in, so a small pickup and a large one are multiplied differently.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Parts Multiplier]
+										Section: [multipliers]
+										ControlType: [Slider]
+										SliderMinValue: [1.0]
+										SliderMaxValue: [10.0]
+										SliderStepSize: [Logarithmic]
+										MarkAsModified: [True]
+										SettingName: [CONCAT("band", band-parts, "-parts")]
+										DefaultValue: [CHOOSE(band-parts, 2.0, 1.7, 1.5, 1.2, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)]
+										ControlDependency: [multiply-parts = 1 AND multiply-all-parts-and-supplements = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Parts Multiplier</b> to <b>ON</b>.
+																		]
+										ControlDescription:	[
+																CONCAT("What a parts pickup holding ", range("parts-and-supplements", 1, band-parts, "more than"), " is multiplied by. The result is rounded to the nearest whole number.")
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Enable Supplements Multiplier]
+										Section: [multipliers]
+										SettingName: [multiply-supplements]
+										ControlType: [Toggle]
+										ToggleDisabledValue: ["OFF" = 0]
+										ToggleEnabledValue: ["ON" = 1]
+										DefaultValue: [0]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-all-parts-and-supplements = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b>.
+																		]
+										ControlDescription:	[
+																Multiplies what a supplements pickup holds. Off leaves every supplements pickup as the game placed it.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Supplements Multiplier Range]
+										Section: [multipliers]
+										SettingName: [band-supplements]
+										ControlType: [Selector]
+										SelectorCount: [bands.count-parts-and-supplements]
+										SelectorLabel: [range("parts-and-supplements", 1, OPTION, "above")]
+										DefaultValue: [1]
+										MarkAsModified: [True]
+										ControlDependency: [multiply-supplements = 1 AND multiply-all-parts-and-supplements = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Supplements Multiplier</b> to <b>ON</b>.
+																		]
+										ControlVisibility: [bands.count-parts-and-supplements > 1]
+										ControlDescription:	[
+																Chooses which band the multiplier below edits. A pickup is multiplied by the band its own amount falls in, so a small pickup and a large one are multiplied differently.
+															]
+									}
+									{	ItemType: [Control]
+										ControlTitle: [Supplements Multiplier]
+										Section: [multipliers]
+										ControlType: [Slider]
+										SliderMinValue: [1.0]
+										SliderMaxValue: [10.0]
+										SliderStepSize: [Logarithmic]
+										MarkAsModified: [True]
+										SettingName: [CONCAT("band", band-supplements, "-supplements")]
+										DefaultValue: [CHOOSE(band-supplements, 2.0, 1.7, 1.5, 1.2, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)]
+										ControlDependency: [multiply-supplements = 1 AND multiply-all-parts-and-supplements = 0]
+										ControlDependencyDescription:	[
+																			To modify this setting, set <b>Enable Global Multiplier</b> to <b>OFF</b> and <b>Enable Supplements Multiplier</b> to <b>ON</b>.
+																		]
+										ControlDescription:	[
+																CONCAT("What a supplements pickup holding ", range("parts-and-supplements", 1, band-supplements, "more than"), " is multiplied by. The result is rounded to the nearest whole number.")
+															]
+									}
+								}
+				}
+				{	ItemType: [Submenu]
+					SubmenuTitle: [MULTIPLIER RANGES]
+					Content:	{
+									{	ItemType: [Submenu]
+										SubmenuTitle: [CRAFTING MATERIALS]
+										Content:	{
+														{	ItemType: [Control]
+															ControlTitle: [Number of Ranges]
+															Section: [bands]
+															SettingName: [count-crafting-materials]
+															ControlType: [Selector]
+															SelectorValues: ["Off" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5, "6" = 6, "7" = 7, "8" = 8, "9" = 9, "10" = 10]
+															DefaultValue: [4]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlDescription:	[
+																					How many ranges crafting material pickups are divided into by the amount they hold. Each range has its own multiplier. Off uses one multiplier for every amount.
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 1 Size]
+															Section: [bands]
+															SettingName: [band1-size-crafting-materials]
+															ControlType: [Slider]
+															SliderMinValue: [0.25]
+															SliderMaxValue: [100]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [0.25]
+															DefaultValue: [0.25]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-crafting-materials > 1]
+															ControlDescription:	[
+																					CONCAT("Range 1 covers crafting material pickups holding ", range("crafting-materials", 0.25, 1, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 2 Size]
+															Section: [bands]
+															SettingName: [band2-size-crafting-materials]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band1-size-crafting-materials)]
+															SliderMaxValue: [100]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [0.25]
+															DefaultValue: [0.5]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-crafting-materials > 2]
+															ControlDescription:	[
+																					CONCAT("Range 2 covers crafting material pickups holding ", range("crafting-materials", 0.25, 2, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 3 Size]
+															Section: [bands]
+															SettingName: [band3-size-crafting-materials]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band2-size-crafting-materials)]
+															SliderMaxValue: [100]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [0.25]
+															DefaultValue: [0.75]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-crafting-materials > 3]
+															ControlDescription:	[
+																					CONCAT("Range 3 covers crafting material pickups holding ", range("crafting-materials", 0.25, 3, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 4 Size]
+															Section: [bands]
+															SettingName: [band4-size-crafting-materials]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band3-size-crafting-materials)]
+															SliderMaxValue: [100]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [0.25]
+															DefaultValue: [1]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-crafting-materials > 4]
+															ControlDescription:	[
+																					CONCAT("Range 4 covers crafting material pickups holding ", range("crafting-materials", 0.25, 4, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 5 Size]
+															Section: [bands]
+															SettingName: [band5-size-crafting-materials]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band4-size-crafting-materials)]
+															SliderMaxValue: [100]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [0.25]
+															DefaultValue: [1.25]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-crafting-materials > 5]
+															ControlDescription:	[
+																					CONCAT("Range 5 covers crafting material pickups holding ", range("crafting-materials", 0.25, 5, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 6 Size]
+															Section: [bands]
+															SettingName: [band6-size-crafting-materials]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band5-size-crafting-materials)]
+															SliderMaxValue: [100]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [0.25]
+															DefaultValue: [1.5]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-crafting-materials > 6]
+															ControlDescription:	[
+																					CONCAT("Range 6 covers crafting material pickups holding ", range("crafting-materials", 0.25, 6, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 7 Size]
+															Section: [bands]
+															SettingName: [band7-size-crafting-materials]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band6-size-crafting-materials)]
+															SliderMaxValue: [100]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [0.25]
+															DefaultValue: [1.75]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-crafting-materials > 7]
+															ControlDescription:	[
+																					CONCAT("Range 7 covers crafting material pickups holding ", range("crafting-materials", 0.25, 7, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 8 Size]
+															Section: [bands]
+															SettingName: [band8-size-crafting-materials]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band7-size-crafting-materials)]
+															SliderMaxValue: [100]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [0.25]
+															DefaultValue: [2]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-crafting-materials > 8]
+															ControlDescription:	[
+																					CONCAT("Range 8 covers crafting material pickups holding ", range("crafting-materials", 0.25, 8, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 9 Size]
+															Section: [bands]
+															SettingName: [band9-size-crafting-materials]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band8-size-crafting-materials)]
+															SliderMaxValue: [100]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [0.25]
+															DefaultValue: [2.25]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-crafting-materials > 9]
+															ControlDescription:	[
+																					CONCAT("Range 9 covers crafting material pickups holding ", range("crafting-materials", 0.25, 9, "more than"), ".")
+																				]
+														}
+													}
+									}
+									{	ItemType: [Submenu]
+										SubmenuTitle: [AMMO]
+										Content:	{
+														{	ItemType: [Control]
+															ControlTitle: [Number of Ranges]
+															Section: [bands]
+															SettingName: [count-ammo]
+															ControlType: [Selector]
+															SelectorValues: ["Off" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5, "6" = 6, "7" = 7, "8" = 8, "9" = 9, "10" = 10]
+															DefaultValue: [6]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlDescription:	[
+																					How many ranges ammunition pickups are divided into by the amount they hold. Each range has its own multiplier. Off uses one multiplier for every amount.
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 1 Size]
+															Section: [bands]
+															SettingName: [band1-size-ammo]
+															ControlType: [Slider]
+															SliderMinValue: [1]
+															SliderMaxValue: [500]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [1]
+															DefaultValue: [1]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-ammo > 1]
+															ControlDescription:	[
+																					CONCAT("Range 1 covers ammunition pickups holding ", range("ammo", 1, 1, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 2 Size]
+															Section: [bands]
+															SettingName: [band2-size-ammo]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band1-size-ammo)]
+															SliderMaxValue: [500]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [1]
+															DefaultValue: [2]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-ammo > 2]
+															ControlDescription:	[
+																					CONCAT("Range 2 covers ammunition pickups holding ", range("ammo", 1, 2, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 3 Size]
+															Section: [bands]
+															SettingName: [band3-size-ammo]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band2-size-ammo)]
+															SliderMaxValue: [500]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [1]
+															DefaultValue: [3]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-ammo > 3]
+															ControlDescription:	[
+																					CONCAT("Range 3 covers ammunition pickups holding ", range("ammo", 1, 3, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 4 Size]
+															Section: [bands]
+															SettingName: [band4-size-ammo]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band3-size-ammo)]
+															SliderMaxValue: [500]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [1]
+															DefaultValue: [5]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-ammo > 4]
+															ControlDescription:	[
+																					CONCAT("Range 4 covers ammunition pickups holding ", range("ammo", 1, 4, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 5 Size]
+															Section: [bands]
+															SettingName: [band5-size-ammo]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band4-size-ammo)]
+															SliderMaxValue: [500]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [1]
+															DefaultValue: [8]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-ammo > 5]
+															ControlDescription:	[
+																					CONCAT("Range 5 covers ammunition pickups holding ", range("ammo", 1, 5, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 6 Size]
+															Section: [bands]
+															SettingName: [band6-size-ammo]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band5-size-ammo)]
+															SliderMaxValue: [500]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [1]
+															DefaultValue: [10]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-ammo > 6]
+															ControlDescription:	[
+																					CONCAT("Range 6 covers ammunition pickups holding ", range("ammo", 1, 6, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 7 Size]
+															Section: [bands]
+															SettingName: [band7-size-ammo]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band6-size-ammo)]
+															SliderMaxValue: [500]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [1]
+															DefaultValue: [11]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-ammo > 7]
+															ControlDescription:	[
+																					CONCAT("Range 7 covers ammunition pickups holding ", range("ammo", 1, 7, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 8 Size]
+															Section: [bands]
+															SettingName: [band8-size-ammo]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band7-size-ammo)]
+															SliderMaxValue: [500]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [1]
+															DefaultValue: [12]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-ammo > 8]
+															ControlDescription:	[
+																					CONCAT("Range 8 covers ammunition pickups holding ", range("ammo", 1, 8, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 9 Size]
+															Section: [bands]
+															SettingName: [band9-size-ammo]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band8-size-ammo)]
+															SliderMaxValue: [500]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [1]
+															DefaultValue: [13]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-ammo > 9]
+															ControlDescription:	[
+																					CONCAT("Range 9 covers ammunition pickups holding ", range("ammo", 1, 9, "more than"), ".")
+																				]
+														}
+													}
+									}
+									{	ItemType: [Submenu]
+										SubmenuTitle: [ITEMS]
+										Content:	{
+														{	ItemType: [Control]
+															ControlTitle: [Number of Ranges]
+															Section: [bands]
+															SettingName: [count-items]
+															ControlType: [Selector]
+															SelectorValues: ["Off" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5, "6" = 6, "7" = 7, "8" = 8, "9" = 9, "10" = 10]
+															DefaultValue: [1]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlDescription:	[
+																					How many ranges item pickups are divided into by the amount they hold. Each range has its own multiplier. Off uses one multiplier for every amount.
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 1 Size]
+															Section: [bands]
+															SettingName: [band1-size-items]
+															ControlType: [Slider]
+															SliderMinValue: [1]
+															SliderMaxValue: [100]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [1]
+															DefaultValue: [1]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-items > 1]
+															ControlDescription:	[
+																					CONCAT("Range 1 covers item pickups holding ", range("items", 1, 1, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 2 Size]
+															Section: [bands]
+															SettingName: [band2-size-items]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band1-size-items)]
+															SliderMaxValue: [100]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [1]
+															DefaultValue: [2]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-items > 2]
+															ControlDescription:	[
+																					CONCAT("Range 2 covers item pickups holding ", range("items", 1, 2, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 3 Size]
+															Section: [bands]
+															SettingName: [band3-size-items]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band2-size-items)]
+															SliderMaxValue: [100]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [1]
+															DefaultValue: [10]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-items > 3]
+															ControlDescription:	[
+																					CONCAT("Range 3 covers item pickups holding ", range("items", 1, 3, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 4 Size]
+															Section: [bands]
+															SettingName: [band4-size-items]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band3-size-items)]
+															SliderMaxValue: [100]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [1]
+															DefaultValue: [11]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-items > 4]
+															ControlDescription:	[
+																					CONCAT("Range 4 covers item pickups holding ", range("items", 1, 4, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 5 Size]
+															Section: [bands]
+															SettingName: [band5-size-items]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band4-size-items)]
+															SliderMaxValue: [100]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [1]
+															DefaultValue: [12]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-items > 5]
+															ControlDescription:	[
+																					CONCAT("Range 5 covers item pickups holding ", range("items", 1, 5, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 6 Size]
+															Section: [bands]
+															SettingName: [band6-size-items]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band5-size-items)]
+															SliderMaxValue: [100]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [1]
+															DefaultValue: [13]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-items > 6]
+															ControlDescription:	[
+																					CONCAT("Range 6 covers item pickups holding ", range("items", 1, 6, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 7 Size]
+															Section: [bands]
+															SettingName: [band7-size-items]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band6-size-items)]
+															SliderMaxValue: [100]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [1]
+															DefaultValue: [14]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-items > 7]
+															ControlDescription:	[
+																					CONCAT("Range 7 covers item pickups holding ", range("items", 1, 7, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 8 Size]
+															Section: [bands]
+															SettingName: [band8-size-items]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band7-size-items)]
+															SliderMaxValue: [100]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [1]
+															DefaultValue: [15]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-items > 8]
+															ControlDescription:	[
+																					CONCAT("Range 8 covers item pickups holding ", range("items", 1, 8, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 9 Size]
+															Section: [bands]
+															SettingName: [band9-size-items]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band8-size-items)]
+															SliderMaxValue: [100]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [1]
+															DefaultValue: [16]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-items > 9]
+															ControlDescription:	[
+																					CONCAT("Range 9 covers item pickups holding ", range("items", 1, 9, "more than"), ".")
+																				]
+														}
+													}
+									}
+									{	ItemType: [Submenu]
+										SubmenuTitle: [PARTS AND SUPPLEMENTS]
+										Content:	{
+														{	ItemType: [Control]
+															ControlTitle: [Number of Ranges]
+															Section: [bands]
+															SettingName: [count-parts-and-supplements]
+															ControlType: [Selector]
+															SelectorValues: ["Off" = 1, "2" = 2, "3" = 3, "4" = 4, "5" = 5, "6" = 6, "7" = 7, "8" = 8, "9" = 9, "10" = 10]
+															DefaultValue: [6]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlDescription:	[
+																					How many ranges parts or supplements pickups are divided into by the amount they hold. Each range has its own multiplier. Off uses one multiplier for every amount.
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 1 Size]
+															Section: [bands]
+															SettingName: [band1-size-parts-and-supplements]
+															ControlType: [Slider]
+															SliderMinValue: [1]
+															SliderMaxValue: [2500]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [1]
+															DefaultValue: [1]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-parts-and-supplements > 1]
+															ControlDescription:	[
+																					CONCAT("Range 1 covers parts or supplements pickups holding ", range("parts-and-supplements", 1, 1, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 2 Size]
+															Section: [bands]
+															SettingName: [band2-size-parts-and-supplements]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band1-size-parts-and-supplements)]
+															SliderMaxValue: [2500]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [1]
+															DefaultValue: [5]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-parts-and-supplements > 2]
+															ControlDescription:	[
+																					CONCAT("Range 2 covers parts or supplements pickups holding ", range("parts-and-supplements", 1, 2, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 3 Size]
+															Section: [bands]
+															SettingName: [band3-size-parts-and-supplements]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band2-size-parts-and-supplements)]
+															SliderMaxValue: [2500]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [1]
+															DefaultValue: [10]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-parts-and-supplements > 3]
+															ControlDescription:	[
+																					CONCAT("Range 3 covers parts or supplements pickups holding ", range("parts-and-supplements", 1, 3, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 4 Size]
+															Section: [bands]
+															SettingName: [band4-size-parts-and-supplements]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band3-size-parts-and-supplements)]
+															SliderMaxValue: [2500]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [1]
+															DefaultValue: [20]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-parts-and-supplements > 4]
+															ControlDescription:	[
+																					CONCAT("Range 4 covers parts or supplements pickups holding ", range("parts-and-supplements", 1, 4, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 5 Size]
+															Section: [bands]
+															SettingName: [band5-size-parts-and-supplements]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band4-size-parts-and-supplements)]
+															SliderMaxValue: [2500]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [1]
+															DefaultValue: [25]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-parts-and-supplements > 5]
+															ControlDescription:	[
+																					CONCAT("Range 5 covers parts or supplements pickups holding ", range("parts-and-supplements", 1, 5, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 6 Size]
+															Section: [bands]
+															SettingName: [band6-size-parts-and-supplements]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band5-size-parts-and-supplements)]
+															SliderMaxValue: [2500]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [1]
+															DefaultValue: [50]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-parts-and-supplements > 6]
+															ControlDescription:	[
+																					CONCAT("Range 6 covers parts or supplements pickups holding ", range("parts-and-supplements", 1, 6, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 7 Size]
+															Section: [bands]
+															SettingName: [band7-size-parts-and-supplements]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band6-size-parts-and-supplements)]
+															SliderMaxValue: [2500]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [1]
+															DefaultValue: [51]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-parts-and-supplements > 7]
+															ControlDescription:	[
+																					CONCAT("Range 7 covers parts or supplements pickups holding ", range("parts-and-supplements", 1, 7, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 8 Size]
+															Section: [bands]
+															SettingName: [band8-size-parts-and-supplements]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band7-size-parts-and-supplements)]
+															SliderMaxValue: [2500]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [1]
+															DefaultValue: [52]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-parts-and-supplements > 8]
+															ControlDescription:	[
+																					CONCAT("Range 8 covers parts or supplements pickups holding ", range("parts-and-supplements", 1, 8, "more than"), ".")
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Range 9 Size]
+															Section: [bands]
+															SettingName: [band9-size-parts-and-supplements]
+															ControlType: [Slider]
+															SliderMinValue: [STEPUP(bands.band8-size-parts-and-supplements)]
+															SliderMaxValue: [2500]
+															SliderStepSize: [Logarithmic]
+															SliderSmallestStep: [1]
+															DefaultValue: [53]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlVisibility: [bands.count-parts-and-supplements > 9]
+															ControlDescription:	[
+																					CONCAT("Range 9 covers parts or supplements pickups holding ", range("parts-and-supplements", 1, 9, "more than"), ".")
+																				]
+														}
+													}
+									}
+								}
+				}
+				{	ItemType: [Submenu]
+					SubmenuTitle: [CARRY LIMITS]
+					Content:	{
+									{	ItemType: [Submenu]
+										SubmenuTitle: [CRAFTING MATERIALS]
+										Content:	{
+														{	ItemType: [Control]
+															ControlTitle: [Enable Global Carry Limit]
+															Section: [carry limits]
+															SettingName: [limit-all-crafting-materials]
+															ControlType: [Toggle]
+															ToggleDisabledValue: ["OFF" = 0]
+															ToggleEnabledValue: ["ON" = 1]
+															DefaultValue: [1]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlDescription:	[
+																					Global carry limit for crafting materials. Individual carry limits apply when disabled.
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Global Carry Limit]
+															Section: [carry limits]
+															SettingName: [limit-amount-all-crafting-materials]
+															ControlType: [Slider]
+															SliderMinValue: [1]
+															SliderMaxValue: [40]
+															SliderStepSize: [1]
+															DefaultValue: [6]
+															MarkAsModified: [True]
+															ControlDependency: [limit-all-crafting-materials = 1]
+															ControlDependencyDescription:	[
+																								To modify this setting, set <b>Enable Global Carry Limit</b> to <b>ON</b>.
+																							]
+															ControlDescription:	[
+																					How many whole crafting materials of each type the player may hold. Default is 6.
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Rag]
+															Section: [carry limits]
+															SettingName: [limit-rag]
+															ControlType: [Slider]
+															SliderMinValue: [1]
+															SliderMaxValue: [40]
+															SliderStepSize: [1]
+															DefaultValue: [3]
+															MarkAsModified: [True]
+															ControlDependency: [limit-all-crafting-materials = 0]
+															ControlDependencyDescription:	[
+																								To modify this setting, set <b>Enable Global Carry Limit</b> to <b>OFF</b>.
+																							]
+															ControlDescription:	[
+																					How many whole rag items the player may hold. Default is 3.
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Binding]
+															Section: [carry limits]
+															SettingName: [limit-binding]
+															ControlType: [Slider]
+															SliderMinValue: [1]
+															SliderMaxValue: [40]
+															SliderStepSize: [1]
+															DefaultValue: [3]
+															MarkAsModified: [True]
+															ControlDependency: [limit-all-crafting-materials = 0]
+															ControlDependencyDescription:	[
+																								To modify this setting, set <b>Enable Global Carry Limit</b> to <b>OFF</b>.
+																							]
+															ControlDescription:	[
+																					How many whole binding items the player may hold. Default is 3.
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Blade]
+															Section: [carry limits]
+															SettingName: [limit-blade]
+															ControlType: [Slider]
+															SliderMinValue: [1]
+															SliderMaxValue: [40]
+															SliderStepSize: [1]
+															DefaultValue: [3]
+															MarkAsModified: [True]
+															ControlDependency: [limit-all-crafting-materials = 0]
+															ControlDependencyDescription:	[
+																								To modify this setting, set <b>Enable Global Carry Limit</b> to <b>OFF</b>.
+																							]
+															ControlDescription:	[
+																					How many whole blade items the player may hold. Default is 3.
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Alcohol]
+															Section: [carry limits]
+															SettingName: [limit-alcohol]
+															ControlType: [Slider]
+															SliderMinValue: [1]
+															SliderMaxValue: [40]
+															SliderStepSize: [1]
+															DefaultValue: [3]
+															MarkAsModified: [True]
+															ControlDependency: [limit-all-crafting-materials = 0]
+															ControlDependencyDescription:	[
+																								To modify this setting, set <b>Enable Global Carry Limit</b> to <b>OFF</b>.
+																							]
+															ControlDescription:	[
+																					How many whole alcohol items the player may hold. Default is 3.
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Explosive]
+															Section: [carry limits]
+															SettingName: [limit-explosive]
+															ControlType: [Slider]
+															SliderMinValue: [1]
+															SliderMaxValue: [40]
+															SliderStepSize: [1]
+															DefaultValue: [3]
+															MarkAsModified: [True]
+															ControlDependency: [limit-all-crafting-materials = 0]
+															ControlDependencyDescription:	[
+																								To modify this setting, set <b>Enable Global Carry Limit</b> to <b>OFF</b>.
+																							]
+															ControlDescription:	[
+																					How many whole explosive items the player may hold. Default is 3.
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Sugar]
+															Section: [carry limits]
+															SettingName: [limit-sugar]
+															ControlType: [Slider]
+															SliderMinValue: [1]
+															SliderMaxValue: [40]
+															SliderStepSize: [1]
+															DefaultValue: [3]
+															MarkAsModified: [True]
+															ControlDependency: [limit-all-crafting-materials = 0]
+															ControlDependencyDescription:	[
+																								To modify this setting, set <b>Enable Global Carry Limit</b> to <b>OFF</b>.
+																							]
+															ControlDescription:	[
+																					How many whole sugar items the player may hold. Default is 3.
+																				]
+														}
+													}
+									}
+									{	ItemType: [Submenu]
+										SubmenuTitle: [AMMO]
+										Content:	{
+														{	ItemType: [Control]
+															ControlTitle: [Enable Global Carry Limit]
+															Section: [carry limits]
+															SettingName: [limit-all-ammo]
+															ControlType: [Toggle]
+															ToggleDisabledValue: ["OFF" = 0]
+															ToggleEnabledValue: ["ON" = 1]
+															DefaultValue: [0]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlDescription:	[
+																					Global carry limit for ammunition. Individual carry limits apply when disabled.
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Global Carry Limit]
+															Section: [carry limits]
+															SettingName: [limit-amount-all-ammo]
+															ControlType: [Slider]
+															SliderMinValue: [1]
+															SliderMaxValue: [400]
+															SliderStepSize: [1]
+															DefaultValue: [100]
+															MarkAsModified: [True]
+															ControlDependency: [limit-all-ammo = 1]
+															ControlDependencyDescription:	[
+																								To modify this setting, set <b>Enable Global Carry Limit</b> to <b>ON</b>.
+																							]
+															ControlDescription:	[
+																					How much ammunition of each type the player may hold. Default is 100.
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [9mm Ammunition]
+															Section: [carry limits]
+															SettingName: [limit-ammo-9mm]
+															ControlType: [Slider]
+															SliderMinValue: [1]
+															SliderMaxValue: [200]
+															SliderStepSize: [1]
+															DefaultValue: [20]
+															MarkAsModified: [True]
+															ControlDependency: [limit-all-ammo = 0]
+															ControlDependencyDescription:	[
+																								To modify this setting, set <b>Enable Global Carry Limit</b> to <b>OFF</b>.
+																							]
+															ControlDescription:	[
+																					How many 9mm ammunition the player may hold. Default is 20.
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Shotgun Shells]
+															Section: [carry limits]
+															SettingName: [limit-ammo-shotgun]
+															ControlType: [Slider]
+															SliderMinValue: [1]
+															SliderMaxValue: [200]
+															SliderStepSize: [1]
+															DefaultValue: [15]
+															MarkAsModified: [True]
+															ControlDependency: [limit-all-ammo = 0]
+															ControlDependencyDescription:	[
+																								To modify this setting, set <b>Enable Global Carry Limit</b> to <b>OFF</b>.
+																							]
+															ControlDescription:	[
+																					How many shotgun shells the player may hold. Default is 15.
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Rifle Ammunition]
+															Section: [carry limits]
+															SettingName: [limit-ammo-rifle]
+															ControlType: [Slider]
+															SliderMinValue: [1]
+															SliderMaxValue: [200]
+															SliderStepSize: [1]
+															DefaultValue: [9]
+															MarkAsModified: [True]
+															ControlDependency: [limit-all-ammo = 0]
+															ControlDependencyDescription:	[
+																								To modify this setting, set <b>Enable Global Carry Limit</b> to <b>OFF</b>.
+																							]
+															ControlDescription:	[
+																					How many rifle ammunition the player may hold. Default is 9.
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Revolver Ammunition]
+															Section: [carry limits]
+															SettingName: [limit-ammo-revolver]
+															ControlType: [Slider]
+															SliderMinValue: [1]
+															SliderMaxValue: [200]
+															SliderStepSize: [1]
+															DefaultValue: [18]
+															MarkAsModified: [True]
+															ControlDependency: [limit-all-ammo = 0]
+															ControlDependencyDescription:	[
+																								To modify this setting, set <b>Enable Global Carry Limit</b> to <b>OFF</b>.
+																							]
+															ControlDescription:	[
+																					How many revolver ammunition the player may hold. Default is 18.
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Arrows]
+															Section: [carry limits]
+															SettingName: [limit-ammo-arrow]
+															ControlType: [Slider]
+															SliderMinValue: [1]
+															SliderMaxValue: [200]
+															SliderStepSize: [1]
+															DefaultValue: [12]
+															MarkAsModified: [True]
+															ControlDependency: [limit-all-ammo = 0]
+															ControlDependencyDescription:	[
+																								To modify this setting, set <b>Enable Global Carry Limit</b> to <b>OFF</b>.
+																							]
+															ControlDescription:	[
+																					How many arrows the player may hold. Default is 12.
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Flamethrower Fuel]
+															Section: [carry limits]
+															SettingName: [limit-ammo-flamethrower]
+															ControlType: [Slider]
+															SliderMinValue: [1]
+															SliderMaxValue: [400]
+															SliderStepSize: [1]
+															DefaultValue: [150]
+															MarkAsModified: [True]
+															ControlDependency: [limit-all-ammo = 0]
+															ControlDependencyDescription:	[
+																								To modify this setting, set <b>Enable Global Carry Limit</b> to <b>OFF</b>.
+																							]
+															ControlDescription:	[
+																					How many flamethrower fuel the player may hold. Default is 150.
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Assault Rifle Ammunition]
+															Section: [carry limits]
+															SettingName: [limit-ammo-assault-rifle]
+															ControlType: [Slider]
+															SliderMinValue: [1]
+															SliderMaxValue: [400]
+															SliderStepSize: [1]
+															DefaultValue: [120]
+															MarkAsModified: [True]
+															ControlDependency: [limit-all-ammo = 0]
+															ControlDependencyDescription:	[
+																								To modify this setting, set <b>Enable Global Carry Limit</b> to <b>OFF</b>.
+																							]
+															ControlDescription:	[
+																					How many assault rifle ammunition the player may hold. Default is 120.
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Shorty Shells]
+															Section: [carry limits]
+															SettingName: [limit-ammo-shorty]
+															ControlType: [Slider]
+															SliderMinValue: [1]
+															SliderMaxValue: [200]
+															SliderStepSize: [1]
+															DefaultValue: [8]
+															MarkAsModified: [True]
+															ControlDependency: [limit-all-ammo = 0]
+															ControlDependencyDescription:	[
+																								To modify this setting, set <b>Enable Global Carry Limit</b> to <b>OFF</b>.
+																							]
+															ControlDescription:	[
+																					How many shorty shells the player may hold. Default is 8.
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [El Diablo Ammunition]
+															Section: [carry limits]
+															SettingName: [limit-ammo-el-diablo]
+															ControlType: [Slider]
+															SliderMinValue: [1]
+															SliderMaxValue: [200]
+															SliderStepSize: [1]
+															DefaultValue: [12]
+															MarkAsModified: [True]
+															ControlDependency: [limit-all-ammo = 0]
+															ControlDependencyDescription:	[
+																								To modify this setting, set <b>Enable Global Carry Limit</b> to <b>OFF</b>.
+																							]
+															ControlDescription:	[
+																					How many el diablo ammunition the player may hold. Default is 12.
+																				]
+														}
+													}
+									}
+									{	ItemType: [Submenu]
+										SubmenuTitle: [ITEMS]
+										Content:	{
+														{	ItemType: [Control]
+															ControlTitle: [Enable Global Carry Limit]
+															Section: [carry limits]
+															SettingName: [limit-all-items]
+															ControlType: [Toggle]
+															ToggleDisabledValue: ["OFF" = 0]
+															ToggleEnabledValue: ["ON" = 1]
+															DefaultValue: [0]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlDescription:	[
+																					Global carry limit for items. Individual carry limits apply when disabled.
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Global Carry Limit]
+															Section: [carry limits]
+															SettingName: [limit-amount-all-items]
+															ControlType: [Slider]
+															SliderMinValue: [1]
+															SliderMaxValue: [100]
+															SliderStepSize: [1]
+															DefaultValue: [3]
+															MarkAsModified: [True]
+															ControlDependency: [limit-all-items = 1]
+															ControlDependencyDescription:	[
+																								To modify this setting, set <b>Enable Global Carry Limit</b> to <b>ON</b>.
+																							]
+															ControlDescription:	[
+																					How many items of each type the player may hold. Default is 3.
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Health Kit]
+															Section: [carry limits]
+															SettingName: [limit-health-kit]
+															ControlType: [Slider]
+															SliderMinValue: [1]
+															SliderMaxValue: [100]
+															SliderStepSize: [1]
+															DefaultValue: [6]
+															MarkAsModified: [True]
+															ControlDependency: [limit-all-items = 0]
+															ControlDependencyDescription:	[
+																								To modify this setting, set <b>Enable Global Carry Limit</b> to <b>OFF</b>.
+																							]
+															ControlDescription:	[
+																					How many health kit the player may hold. Default is 6.
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Molotov]
+															Section: [carry limits]
+															SettingName: [limit-molotov]
+															ControlType: [Slider]
+															SliderMinValue: [1]
+															SliderMaxValue: [50]
+															SliderStepSize: [1]
+															DefaultValue: [6]
+															MarkAsModified: [True]
+															ControlDependency: [limit-all-items = 0]
+															ControlDependencyDescription:	[
+																								To modify this setting, set <b>Enable Global Carry Limit</b> to <b>OFF</b>.
+																							]
+															ControlDescription:	[
+																					How many molotov the player may hold. Default is 6.
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Nail Bomb]
+															Section: [carry limits]
+															SettingName: [limit-nail-bomb]
+															ControlType: [Slider]
+															SliderMinValue: [1]
+															SliderMaxValue: [50]
+															SliderStepSize: [1]
+															DefaultValue: [6]
+															MarkAsModified: [True]
+															ControlDependency: [limit-all-items = 0]
+															ControlDependencyDescription:	[
+																								To modify this setting, set <b>Enable Global Carry Limit</b> to <b>OFF</b>.
+																							]
+															ControlDescription:	[
+																					How many nail bomb the player may hold. Default is 6.
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Smoke Bomb]
+															Section: [carry limits]
+															SettingName: [limit-smoke-bomb]
+															ControlType: [Slider]
+															SliderMinValue: [1]
+															SliderMaxValue: [50]
+															SliderStepSize: [1]
+															DefaultValue: [6]
+															MarkAsModified: [True]
+															ControlDependency: [limit-all-items = 0]
+															ControlDependencyDescription:	[
+																								To modify this setting, set <b>Enable Global Carry Limit</b> to <b>OFF</b>.
+																							]
+															ControlDescription:	[
+																					How many smoke bomb the player may hold. Default is 6.
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Shiv]
+															Section: [carry limits]
+															SettingName: [limit-shiv]
+															ControlType: [Slider]
+															SliderMinValue: [1]
+															SliderMaxValue: [50]
+															SliderStepSize: [1]
+															DefaultValue: [6]
+															MarkAsModified: [True]
+															ControlDependency: [limit-all-items = 0]
+															ControlDependencyDescription:	[
+																								To modify this setting, set <b>Enable Global Carry Limit</b> to <b>OFF</b>.
+																							]
+															ControlDescription:	[
+																					How many shiv the player may hold. Default is 6.
+																				]
+														}
+													}
+									}
+									{	ItemType: [Submenu]
+										SubmenuTitle: [PARTS AND SUPPLEMENTS]
+										Content:	{
+														{	ItemType: [Control]
+															ControlTitle: [Enable Global Carry Limit]
+															Section: [carry limits]
+															SettingName: [limit-all-parts-and-supplements]
+															ControlType: [Toggle]
+															ToggleDisabledValue: ["OFF" = 0]
+															ToggleEnabledValue: ["ON" = 1]
+															DefaultValue: [0]
+															MarkAsModified: [True]
+															ControlDependency: []
+															ControlDescription:	[
+																					Global carry limit for parts and supplements. Individual carry limits apply when disabled.
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Global Carry Limit]
+															Section: [carry limits]
+															SettingName: [limit-amount-all-parts-and-supplements]
+															ControlType: [Slider]
+															SliderMinValue: [99]
+															SliderMaxValue: [9999]
+															SliderStepSize: [99]
+															DefaultValue: [9999]
+															MarkAsModified: [True]
+															ControlDependency: [limit-all-parts-and-supplements = 1]
+															ControlDependencyDescription:	[
+																								To modify this setting, set <b>Enable Global Carry Limit</b> to <b>ON</b>.
+																							]
+															ControlDescription:	[
+																					How many parts, and how many supplements, the player may hold. Default is 9999.
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Parts]
+															Section: [carry limits]
+															SettingName: [limit-parts]
+															ControlType: [Slider]
+															SliderMinValue: [99]
+															SliderMaxValue: [9999]
+															SliderStepSize: [99]
+															DefaultValue: [9999]
+															MarkAsModified: [True]
+															ControlDependency: [limit-all-parts-and-supplements = 0]
+															ControlDependencyDescription:	[
+																								To modify this setting, set <b>Enable Global Carry Limit</b> to <b>OFF</b>.
+																							]
+															ControlDescription:	[
+																					How many parts the player may hold. Default is 9999. 9999 is the game's way of saying there is no limit.
+																				]
+														}
+														{	ItemType: [Control]
+															ControlTitle: [Supplements]
+															Section: [carry limits]
+															SettingName: [limit-supplements]
+															ControlType: [Slider]
+															SliderMinValue: [99]
+															SliderMaxValue: [9999]
+															SliderStepSize: [99]
+															DefaultValue: [9999]
+															MarkAsModified: [True]
+															ControlDependency: [limit-all-parts-and-supplements = 0]
+															ControlDependencyDescription:	[
+																								To modify this setting, set <b>Enable Global Carry Limit</b> to <b>OFF</b>.
+																							]
+															ControlDescription:	[
+																					How many supplements the player may hold. Default is 9999. 9999 is the game's way of saying there is no limit.
+																				]
+														}
+													}
+									}
+								}
+				}
+			}
